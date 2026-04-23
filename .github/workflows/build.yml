@@ -16,7 +16,7 @@ jobs:
     with:
       output: image
       push: ${{ github.event_name != 'pull_request' }}
-      meta-images: svix-jbrown/clickhouse-fix-pvs
+      meta-images: ghcr.io/svix-jbrown/clickhouse-fix-pvs
       cache: true
       cache-scope: build
       cache-mode: max

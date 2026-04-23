@@ -16,14 +16,7 @@ spec:
     spec:
       serviceAccountName: {{ include "fix-pv.serviceAccountName" . }}
       containers:
-        - name: kubectl
-          {{- $kubeVersion := (ternary (printf "%s.0" .Capabilities.KubeVersion.Version) (regexFind "v\\d+\\.\\d+\\.\\d+" .Capabilities.KubeVersion.Version) (regexMatch "^v\\d+\\.\\d+$" .Capabilities.KubeVersion.Version)) }}
-          {{- $tag := .Values.upgrade.image.kubectl.tag | default $kubeVersion }}
-          image: "registry.k8s.io/kubectl:{{ $tag }}"
+        - name: fixer
+          image: "ghcr.io/svix-jbrown/clickhouse-fix-pvs:latest"
           imagePullPolicy: "IfNotPresent"
-          command:
-            - kubectl
-          args:
-            - []
       restartPolicy: OnFailure
-{{- end }}

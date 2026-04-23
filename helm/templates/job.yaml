@@ -1,0 +1,29 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "fix-pv.name" . }}
+  namespace: {{ .Release.Namespace }}
+  annotations:
+    "helm.sh/hook": post-install
+    "helm.sh/hook-weight": "5"
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+  labels:
+    {{- include "fix-pv.labels" . | nindent 4 }}
+spec:
+  backoffLimit: 3
+  template:
+    metadata:
+    spec:
+      serviceAccountName: {{ include "fix-pv.serviceAccountName" . }}
+      containers:
+        - name: kubectl
+          {{- $kubeVersion := (ternary (printf "%s.0" .Capabilities.KubeVersion.Version) (regexFind "v\\d+\\.\\d+\\.\\d+" .Capabilities.KubeVersion.Version) (regexMatch "^v\\d+\\.\\d+$" .Capabilities.KubeVersion.Version)) }}
+          {{- $tag := .Values.upgrade.image.kubectl.tag | default $kubeVersion }}
+          image: "registry.k8s.io/kubectl:{{ $tag }}"
+          imagePullPolicy: "IfNotPresent"
+          command:
+            - kubectl
+          args:
+            - []
+      restartPolicy: OnFailure
+{{- end }}

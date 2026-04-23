@@ -18,7 +18,7 @@ for pv in $(kubectl -n "$NAMESPACE" get pv -o custom-columns=NAME:.metadata.name
     reclaim_policy="$(kubectl -n "$NAMESPACE" get pv "$pv" -o 'go-template={{.spec.persistentVolumeReclaimPolicy}}')"
     if [[ "$reclaim_policy" != "Retain" ]]; then
         echo >&2 "Patching $pv from $reclaim_policy to Retain"
-        if [[ -n "$DRY_RUN" ]]; then
+        if [[ -n "${DRY_RUN:-}" ]]; then
             echo "DRY RUN ::: " kubectl -n "$NAMESPACE" patch pv "$pv "-p '{"spec":{"persistentVolumeReclaimPolicy":"Retain"}}'
         else
             kubectl -n "$NAMESPACE" patch pv "$pv "-p '{"spec":{"persistentVolumeReclaimPolicy":"Retain"}}'
